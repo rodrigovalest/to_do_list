@@ -1,10 +1,10 @@
 import "../styles/Task.css";
 
 export function Tasks({ tasks, updateTaskLists }) {
-  function moveToDoingTask(text, id) {
+  function moveTask(text, id, status) {
     const data = {
       text: text,
-      status: "DOING"
+      status: status
     }
 
     fetch(`http://localhost:8080/api/tasks/${id}`, {
@@ -14,12 +14,13 @@ export function Tasks({ tasks, updateTaskLists }) {
       },
         body: JSON.stringify(data)
       })
-        .then(response => response.json())
-        .then(result => {
+        .then((response) => response.json())
+        .then((result) => {
           updateTaskLists();
         })
-        .catch(error => {
+        .catch((err) => {
           alert("New task save fails");
+          console.log(err);
         });
   }
   
@@ -27,12 +28,12 @@ export function Tasks({ tasks, updateTaskLists }) {
     <>
       {tasks.map((task, key) => {
         return (
-          <div className="task" key={task}>
-            <p>{task.taskText}</p>
+          <div className="task" key={task.id}>
+            <p>{task.text}</p>
             <div>
-              <button onClick={() => moveToDoingTask(task.taskText, task.id)}>Doing</button>
-              <button>Done</button>
-              <button>X</button>
+              <button onClick={() => moveTask(task.text, task.id, "DOING")}>Doing</button>
+              <button onClick={() => moveTask(task.text, task.id, "DONE")}>Done</button>
+              <button onClick={() => moveTask(task.text, task.id, "TODO")}>Todo</button>
             </div>
           </div>
         );

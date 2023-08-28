@@ -21,11 +21,11 @@ public class Task {
     private UUID id;
 
     @Column(nullable = false, name = "text")
-    private String taskText;
+    private String text;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "status")
-    private TaskStatus taskStatus;
+    private TaskStatus status;
 
     @CreationTimestamp
     private LocalDateTime creationTimestamp;

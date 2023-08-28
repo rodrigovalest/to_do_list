@@ -19,28 +19,34 @@ import java.util.UUID;
 public class TasksController {
     @Autowired
     private TaskRepository taskRepository;
+    private final Map<String, Object> response = new HashMap<>();
+
 
     @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @GetMapping
-    public ResponseEntity<?> getAll()  throws Exception {
-        List<Task> taskList = taskRepository.findAll();
-        HttpHeaders headers = new HttpHeaders();
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(taskList);
+    public ResponseEntity<?> getAll() throws Exception {
+        response.put("data", taskRepository.findAll());
+        response.put("message", "Success on get all");
+        return ResponseEntity.ok().body(response);
     }
+
 
     @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @GetMapping("/{id}")
     public ResponseEntity<?> getOne(
             @PathVariable UUID id
     ) throws Exception {
-        if (!taskRepository.existsById(id))
-            return ResponseEntity.badRequest().body("Inexistent task");
+        if (!taskRepository.existsById(id)) {
+            response.put("data", "");
+            response.put("message", "Inexistent task");
+            return ResponseEntity.badRequest().body(response);
+        }
 
-        return ResponseEntity.ok().body(taskRepository.findById(id));
+        response.put("data", taskRepository.findById(id).get());
+        response.put("message", "Sucess on get one");
+        return ResponseEntity.ok().body(response);
     }
+
 
     @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PostMapping
@@ -48,11 +54,17 @@ public class TasksController {
             @Valid @RequestBody TaskDTO taskDTO,
             BindingResult bindingResult
     ) throws Exception {
-        if (bindingResult.hasErrors())
-            return ResponseEntity.badRequest().body("Invalid body");
+        if (bindingResult.hasErrors()) {
+            response.put("data", "");
+            response.put("message", "Invalid request body");
+            return ResponseEntity.badRequest().body(response);
+        }
 
-        return ResponseEntity.ok().body(taskRepository.save(taskDTO.toTask()));
+        response.put("data", taskRepository.save(taskDTO.toTask()));
+        response.put("message", "Sucess on save");
+        return ResponseEntity.ok().body(response);
     }
+
 
     @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PutMapping("/{id}")
@@ -61,30 +73,39 @@ public class TasksController {
             @Valid @RequestBody TaskDTO taskDTO,
             BindingResult bindingResult
     ) throws Exception {
-        if (bindingResult.hasErrors())
-            return ResponseEntity.badRequest().body("Invalid body");
+        if (bindingResult.hasErrors()) {
+            response.put("data", "");
+            response.put("message", "Invalid request body");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (!taskRepository.existsById(id)) {
+            response.put("data", "");
+            response.put("message", "Inexistent task");
+            return ResponseEntity.badRequest().body(response);
+        }
 
-        Optional<Task> optionalTask = taskRepository.findById(id);
-
-        if (optionalTask.isEmpty())
-            return ResponseEntity.badRequest().body("Inexistent task");
-
-        Task task = optionalTask.get();
+        Task task = taskRepository.findById(id).get();
         taskDTO.updateTask(task);
 
-        return ResponseEntity.ok().body(taskRepository.save(task));
+        response.put("data", taskRepository.save(task));
+        response.put("message", "Sucess on update");
+        return ResponseEntity.ok().body(response);
     }
+
 
     @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> destroy(
             @PathVariable UUID id
     ) throws Exception {
-        if (!taskRepository.existsById(id))
-            return ResponseEntity.badRequest().body("Inexistent task");
+        response.put("data", "");
+        if (!taskRepository.existsById(id)) {
+            response.put("message", "Inexistent task");
+            return ResponseEntity.badRequest().body(response);
+        }
 
         taskRepository.deleteById(id);
-
-        return ResponseEntity.ok().body("Sucess on deleting");
+        response.put("message", "Success on deleting");
+        return ResponseEntity.ok().body(response);
     }
 }

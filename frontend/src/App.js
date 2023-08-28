@@ -15,15 +15,15 @@ export default function App() {
   const updateTaskLists = () => {
     fetch("http://localhost:8080/api/tasks")
       .then((response) => response.json())
-      .then((data) => {
+      .then((result) => {
         const newTodoTasks = [];
         const newDoingTasks = [];
         const newDoneTasks = [];
 
-        data.forEach((task) => {
-          if (task.taskStatus === "TODO") {
+        result.data.forEach((task) => {
+          if (task.status === "TODO") {
             newTodoTasks.push(task);
-          } else if (task.taskStatus === "DOING") {
+          } else if (task.status === "DOING") {
             newDoingTasks.push(task);
           } else {
             newDoneTasks.push(task);
@@ -38,13 +38,6 @@ export default function App() {
         console.log(err);
       });
   };
-
-  console.log("Todo");
-  console.log(todoTasks);
-  console.log("Doing");
-  console.log(doingTasks);
-  console.log("Done");
-  console.log(doneTasks);
 
   return (
     <>

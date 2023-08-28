@@ -21,13 +21,13 @@ public class TaskDTO {
 
     public Task toTask() {
         Task task = new Task();
-        task.setTaskText(this.text);
-        task.setTaskStatus(this.status);
+        task.setText(this.text);
+        task.setStatus(this.status);
         return task;
     }
 
     public void updateTask(Task task) {
-        task.setTaskText(this.text);
-        task.setTaskStatus(this.status);
+        task.setText(this.text);
+        task.setStatus(this.status);
     }
 }

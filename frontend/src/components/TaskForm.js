@@ -14,11 +14,13 @@ export function TaskForm({ updateTaskLists }) {
     if (newTask == null || newTask == "") {
       return;
     }
-        
+
     const data = {
       text: newTask,
       status: "TODO"
     }
+
+    console.log(data);
         
     setNewTask("");
 
@@ -31,6 +33,8 @@ export function TaskForm({ updateTaskLists }) {
       })
         .then(response => response.json())
         .then(result => {
+          console.log(data);
+          console.log(result.data);
           updateTaskLists();
           alert("New task succefully saved");
         })

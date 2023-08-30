@@ -16,11 +16,10 @@ export function Tasks({ tasks, updateTaskLists }) {
       })
         .then((response) => response.json())
         .then((result) => {
-          alert("Success in creating new task");
           updateTaskLists();
         })
         .catch((err) => {
-          alert("New task save fails");
+          alert("Update task fails");
           console.log(err);
         });
   }

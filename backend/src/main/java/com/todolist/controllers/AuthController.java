@@ -12,10 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +27,24 @@ public class AuthController {
     @Autowired
     private JwtTokenService jwtTokenService;
 
+    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
+    @PostMapping("/validate")
+    public ResponseEntity<?> testAuthentication(
+            @RequestHeader(value = "Authorization", required = false) String authToken
+    ) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+
+        String usernameReturnedByTokenValidation = jwtTokenService.validateToken(authToken);
+        if (userRepository.findByUsername(usernameReturnedByTokenValidation) != null) {
+            response.put("message", "User authorized");
+            return ResponseEntity.ok().body(response);
+        }
+
+        response.put("message", "User unauthorized");
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(
             @Valid @RequestBody UserDTO userDTO,
@@ -59,6 +74,7 @@ public class AuthController {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PostMapping("/signin")
     public ResponseEntity<?> signIn(
             @Valid @RequestBody UserDTO userDTO,

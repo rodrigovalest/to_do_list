@@ -20,7 +20,6 @@ public class TasksController {
     private final Map<String, Object> response = new HashMap<>();
 
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @GetMapping
     public ResponseEntity<?> getAll() throws Exception {
         response.put("data", taskRepository.findAll());
@@ -29,7 +28,6 @@ public class TasksController {
     }
 
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @GetMapping("/{id}")
     public ResponseEntity<?> getOne(
             @PathVariable UUID id
@@ -46,7 +44,6 @@ public class TasksController {
     }
 
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PostMapping
     public ResponseEntity<?> save(
             @Valid @RequestBody TaskDTO taskDTO,
@@ -64,7 +61,6 @@ public class TasksController {
     }
 
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(
             @PathVariable UUID id,
@@ -91,7 +87,6 @@ public class TasksController {
     }
 
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> destroy(
             @PathVariable UUID id

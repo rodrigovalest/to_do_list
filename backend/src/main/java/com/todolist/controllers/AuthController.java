@@ -27,14 +27,16 @@ public class AuthController {
     @Autowired
     private JwtTokenService jwtTokenService;
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PostMapping("/validate")
     public ResponseEntity<?> testAuthentication(
-            @RequestHeader(value = "Authorization", required = false) String authToken
+            @RequestHeader(value = "Authorization", required = false) String token
     ) throws Exception {
         Map<String, Object> response = new HashMap<>();
 
-        String usernameReturnedByTokenValidation = jwtTokenService.validateToken(authToken);
+        token = token.replace("Bearer ", "");
+
+        String usernameReturnedByTokenValidation = jwtTokenService.validateToken(token);
+
         if (userRepository.findByUsername(usernameReturnedByTokenValidation) != null) {
             response.put("message", "User authorized");
             return ResponseEntity.ok().body(response);
@@ -44,7 +46,7 @@ public class AuthController {
         return ResponseEntity.badRequest().body(response);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
+
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(
             @Valid @RequestBody UserDTO userDTO,
@@ -74,7 +76,6 @@ public class AuthController {
     }
 
 
-    @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
     @PostMapping("/signin")
     public ResponseEntity<?> signIn(
             @Valid @RequestBody UserDTO userDTO,

@@ -1,5 +1,6 @@
 package com.todolist.models.task;
 
+import com.todolist.models.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,6 +27,10 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "status")
     private TaskStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @CreationTimestamp
     private LocalDateTime creationTimestamp;

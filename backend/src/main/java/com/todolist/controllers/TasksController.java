@@ -1,12 +1,17 @@
 package com.todolist.controllers;
 
+import com.todolist.config.security.JwtTokenService;
 import com.todolist.models.task.Task;
 import com.todolist.models.task.TaskDTO;
+import com.todolist.models.task.TaskResponse;
+import com.todolist.models.user.User;
 import com.todolist.repositories.TaskRepository;
+import com.todolist.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,29 +21,47 @@ import java.util.*;
 @RequestMapping("api/tasks")
 public class TasksController {
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private TaskRepository taskRepository;
-    private final Map<String, Object> response = new HashMap<>();
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
 
     @GetMapping
-    public ResponseEntity<?> getAll() throws Exception {
-        response.put("data", taskRepository.findAll());
+    public ResponseEntity<?> getAll(
+            @RequestHeader(value = "Authorization", required = false) String token
+    ) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        User user = jwtTokenService.getUserByToken(token);
+
+        List<Task> taskList = taskRepository.findByUserId(user.getId());
+        List<TaskResponse> taskResponseList = new ArrayList<>();
+
+        for (Task task : taskList) taskResponseList.add(new TaskResponse(task));
+
+        response.put("data", taskResponseList);
         response.put("message", "Success on get all");
         return ResponseEntity.ok().body(response);
     }
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/{taskId}")
     public ResponseEntity<?> getOne(
-            @PathVariable UUID id
+            @PathVariable UUID taskId,
+            @RequestHeader(value = "Authorization", required = false) String token
     ) throws Exception {
-        if (!taskRepository.existsById(id)) {
-            response.put("data", "");
+        Map<String, Object> response = new HashMap<>();
+        User user = jwtTokenService.getUserByToken(token);
+
+        if (!taskRepository.existsByIdAndUser(taskId, user)) {
             response.put("message", "Inexistent task");
             return ResponseEntity.badRequest().body(response);
         }
 
-        response.put("data", taskRepository.findById(id).get());
+        Task task = taskRepository.findByIdAndUserId(taskId, user.getId());
+
+        response.put("data", new TaskResponse(task));
         response.put("message", "Sucess on get one");
         return ResponseEntity.ok().body(response);
     }
@@ -46,58 +69,70 @@ public class TasksController {
 
     @PostMapping
     public ResponseEntity<?> save(
+            @RequestHeader(value = "Authorization", required = false) String token,
             @Valid @RequestBody TaskDTO taskDTO,
             BindingResult bindingResult
     ) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        User user = jwtTokenService.getUserByToken(token);
+
         if (bindingResult.hasErrors()) {
-            response.put("data", "");
             response.put("message", "Invalid request body");
             return ResponseEntity.badRequest().body(response);
         }
 
-        response.put("data", taskRepository.save(taskDTO.toTask()));
+        Task task = taskDTO.toTask();
+        task.setUser(user);
+
+        response.put("data", new TaskResponse(taskRepository.save(task)));
         response.put("message", "Sucess on save");
         return ResponseEntity.ok().body(response);
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping("/{taskId}")
     public ResponseEntity<?> update(
-            @PathVariable UUID id,
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @PathVariable UUID taskId,
             @Valid @RequestBody TaskDTO taskDTO,
             BindingResult bindingResult
     ) throws Exception {
+        Map<String, Object> response = new HashMap<>();
+        User user = jwtTokenService.getUserByToken(token);
+
         if (bindingResult.hasErrors()) {
-            response.put("data", "");
             response.put("message", "Invalid request body");
             return ResponseEntity.badRequest().body(response);
         }
-        if (!taskRepository.existsById(id)) {
-            response.put("data", "");
+        if (!taskRepository.existsByIdAndUser(taskId, user)) {
             response.put("message", "Inexistent task");
             return ResponseEntity.badRequest().body(response);
         }
 
-        Task task = taskRepository.findById(id).get();
-        taskDTO.updateTask(task);
+        Task task = taskRepository.findByIdAndUserId(taskId, user.getId());
+        task.setText(taskDTO.getText());
+        task.setStatus(taskDTO.getStatus());
 
-        response.put("data", taskRepository.save(task));
+        response.put("data", new TaskResponse(taskRepository.save(task)));
         response.put("message", "Sucess on update");
         return ResponseEntity.ok().body(response);
     }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{taskId}")
     public ResponseEntity<?> destroy(
-            @PathVariable UUID id
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @PathVariable UUID taskId
     ) throws Exception {
-        response.put("data", "");
-        if (!taskRepository.existsById(id)) {
+        Map<String, Object> response = new HashMap<>();
+        User user = jwtTokenService.getUserByToken(token);
+
+        if (!taskRepository.existsByIdAndUser(taskId, user)) {
             response.put("message", "Inexistent task");
             return ResponseEntity.badRequest().body(response);
         }
 
-        taskRepository.deleteById(id);
+        taskRepository.deleteById(taskId);
         response.put("message", "Success on deleting");
         return ResponseEntity.ok().body(response);
     }

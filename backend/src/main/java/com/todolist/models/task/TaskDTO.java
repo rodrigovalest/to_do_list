@@ -26,8 +26,10 @@ public class TaskDTO {
         return task;
     }
 
-    public void updateTask(Task task) {
+    public Task updateTask() {
+        Task task = new Task();
         task.setText(this.text);
         task.setStatus(this.status);
+        return task;
     }
 }

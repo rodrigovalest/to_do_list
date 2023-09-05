@@ -1,0 +1,25 @@
+.task {
+    margin: 14px 0px;
+    padding: 20px 15px;
+    border-radius: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: rgb(48, 48, 48);
+}
+
+.task > div > button {
+    padding: 10px;
+    margin: 0px 5px;
+    border-radius: 5px;
+
+    color: white;
+    font-weight: 700;
+    background-color: rgb(64, 64, 64);
+}
+
+.task > div > button:hover {
+   cursor: pointer;
+   background-color: rgb(80, 80, 80);
+}
